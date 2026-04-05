@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Тимлид / Оркестратор
+  ai-gateway:
+    build: 
+      context: ./ai-gateway
+      dockerfile: Dockerfile
+    container_name: ai-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-gateway:/app
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - LLM_API_KEY=${LLM_API_KEY}
+      - SERVICE_1C_URL=http://mock-1c:8001
+      - SERVICE_BITRIX_URL=http://bitrix-helper:8002
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # Разработчик №2 / Цены и Остатки
+  mock-1c:
+    build: 
+      context: ./mock-1c
+      dockerfile: Dockerfile
+    container_name: mock-1c
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./mock-1c:/app
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+
+  # Помощник / Vision и CRM
+  bitrix-helper:
+    build: 
+      context: ./bitrix-helper
+      dockerfile: Dockerfile
+    container_name: bitrix-helper
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./bitrix-helper:/app
+    environment:
+      - MINIO_URL=http://minio:9000
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+    depends_on:
+      - minio
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 256M
+
+  # --- ИНФРАСТРУКТУРА ---
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 64M
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Консоль управления (GUI)
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+    command: server /data --console-address ":9001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+
+networks:
+  default:
+    name: b2b-printing-network

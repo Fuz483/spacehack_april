@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+.docker-compose.override.yml
+
+# Секреты (ВАЖНО)
+.env
+
+# Система
+.DS_Store
+Thumbs.db
