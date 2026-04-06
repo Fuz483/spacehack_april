@@ -54,6 +54,7 @@ services:
       - MINIO_URL=http://minio:9000
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=password
+      - BITRIX_WEBHOOK_URL=https://b24-moawpx.bitrix24.by/rest/1/yfftjcxkxj2g26vo/ 
     depends_on:
       - minio
     deploy:
