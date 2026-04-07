@@ -1,5 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
 httpx
 redis
+minio
+google-generativeai
+python-multipart
+aiogram

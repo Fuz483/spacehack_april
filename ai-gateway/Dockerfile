@@ -1,7 +1,15 @@
 FROM python:3.10-slim
 WORKDIR /app
+
+# 1. Установка зависимостей
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# 2. Копирование кода
 COPY . .
-# Важно: порт меняй в зависимости от сервиса (8000, 8001 или 8002)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# 3. Даем права на выполнение скрипту
+RUN chmod +x run.sh
+
+# 4. Запускаем ОДИН командный файл, который поднимет и API, и Бота
+CMD ["./run.sh"]

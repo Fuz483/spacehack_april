@@ -7,17 +7,17 @@ services:
       context: ./ai-gateway
       dockerfile: Dockerfile
     container_name: ai-gateway
+    command: sh ./run.sh
     ports:
       - "8000:8000"
     volumes:
       - ./ai-gateway:/app
     environment:
       - REDIS_URL=redis://redis:6379
-      - LLM_API_KEY=${LLM_API_KEY}
-      - SERVICE_1C_URL=http://mock-1c:8001
-      - SERVICE_BITRIX_URL=http://bitrix-helper:8002
+      - TELEGRAM_TOKEN=8538173347:AAH2oLjsCCr6Xh3sk5x0JwmQJM3Qpj7IFIk
     depends_on:
       - redis
+      - minio
     deploy:
       resources:
         limits:
@@ -90,6 +90,14 @@ services:
         limits:
           cpus: '0.3'
           memory: 256M
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ./ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
 
 networks:
   default:
