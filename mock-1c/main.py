@@ -32,4 +32,6 @@ async def calculate(req: dict):
     return {"status": "success", "total_price": 4500.0, "currency": "RUB"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

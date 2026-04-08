@@ -45,25 +45,29 @@ class MessageRequest(BaseModel):
 
 @app.post("/transfer")
 async def transfer_chat(req: TransferRequest):
-    # Добавляем лог перед отправкой
     print(f"--- ПОПЫТКА ПЕРЕВОДА ЧАТА {req.chat_id} НА USER {req.user_id} ---", flush=True)
 
     async with httpx.AsyncClient() as client:
-        # Используем params для надежности (Битрикс это любит)
-        resp = await client.post(
+        # ШАГ 1: "Берем трубку" (бот назначает чат на себя)
+        answer_resp = await client.post(
+            f"{BITRIX_WEBHOOK_URL}imopenlines.operator.answer",
+            json={"CHAT_ID": req.chat_id}
+        )
+        print(f"--- БОТ ВЗЯЛ ТРУБКУ: {answer_resp.json()} ---", flush=True)
+
+        # ШАГ 2: Теперь бот имеет право перевести чат на специалиста
+        transfer_resp = await client.post(
             f"{BITRIX_WEBHOOK_URL}imopenlines.operator.transfer",
-            params={
+            json={
                 "CHAT_ID": req.chat_id,
                 "TRANSFER_ID": req.user_id
             }
         )
 
-        result = resp.json()
-        # Логируем ответ от Битрикса
-        print(f"--- ОТВЕТ БИТРИКСА: {result} ---", flush=True)
+        result = transfer_resp.json()
+        print(f"--- ОТВЕТ БИТРИКСА ПРИ ПЕРЕВОДЕ: {result} ---", flush=True)
 
         return result
-
 
 @app.post("/send_message")
 async def send_message(req: MessageRequest):
@@ -106,4 +110,6 @@ async def vision_analyze(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
