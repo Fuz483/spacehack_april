@@ -18,7 +18,7 @@ client = AsyncOpenAI(api_key=LLM_API_KEY, base_url="https://api.groq.com/openai/
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
 # ID сотрудников из твоего Битрикса
-ROLES = {"economist": 1, "dispatcher": 14, "technologist": 14}
+ROLES = {"economist": 1, "dispatcher": 16, "technologist": 16}
 
 
 async def process_message(chat_id: str, message_text: str):
